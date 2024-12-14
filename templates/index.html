@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Validation de Phrase</title>
+</head>
+<body class="bg-gray-100 text-gray-900">
+  <div class="container mx-auto py-10">
+    <h1 class="text-3xl font-bold text-center mb-6">Validation de Phrase en Français</h1>
+    <div class="max-w-md mx-auto bg-white p-6 rounded shadow">
+      <form id="sentence-form">
+        <label for="sentence" class="block text-lg font-medium">Entrez une Phrase :</label>
+        <input id="sentence" type="text" class="w-full p-2 border rounded mt-2" placeholder="e.g., Le chat mange une souris">
+        <button type="submit" class="w-full bg-blue-500 text-white py-2 mt-4 rounded hover:bg-blue-600">Valider</button>
+      </form>
+      <div id="result" class="mt-4 text-center text-lg"></div>
+    </div>
+  </div>
+  <script>
+    document.getElementById('sentence-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const sentence = document.getElementById('sentence').value;
+      const response = await fetch('/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sentence }),
+      });
+      const result = await response.json();
+      document.getElementById('result').textContent = result.valid ? "Phrase Valide!" : "Phrase Invalide.";
+      document.getElementById('result').classList.add(result.valid ? "text-green-500" : "text-red-500");
+    });
+  </script>
+</body>
+</html>

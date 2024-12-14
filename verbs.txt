@@ -1,0 +1,12 @@
+mange
+mangent
+parle
+parlent
+écrit
+écrivent
+lit
+lisent
+court
+courent
+chante
+chantent
