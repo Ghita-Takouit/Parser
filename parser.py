@@ -1,40 +1,40 @@
 # parse.py
 
 # Fonction pour charger les mots 
-def load_words(filename):
-    with open(filename, 'r') as file:
-        return set(word.strip() for word in file.readlines())
+def charger_mots(nom_fichier):
+    with open(nom_fichier, 'r') as fichier:
+        return set(mot.strip() for mot in fichier.readlines())
 
 # Charger les composants grammaticaux
-articles = load_words('articles.txt')
-verbs = load_words('verbs.txt')
-nouns = load_words('nouns.txt')
+articles = charger_mots('articles.txt')
+verbes = charger_mots('verbes.txt')
+noms = charger_mots('noms.txt')
 
 # Parseur descendant récursif
-class Parser:
+class Parseur:
     def __init__(self, tokens):
         self.tokens = tokens
         self.pos = 0
 
-    def match(self, expected):
-        if self.pos < len(self.tokens) and self.tokens[self.pos] in expected:
+    def correspondre(self, attendu):
+        if self.pos < len(self.tokens) and self.tokens[self.pos] in attendu:
             self.pos += 1
             return True
         return False
 
-    def parse_subject(self):
-        return self.match(articles) and self.match(nouns)
+    def parse_sujet(self):
+        return self.correspondre(articles) and self.correspondre(noms)
 
     def parse_complement(self):
-        return self.match(articles) and self.match(nouns)
+        return self.correspondre(articles) and self.correspondre(noms)
 
-    def parse_sentence(self):
-        if self.parse_subject() and self.match(verbs) and self.parse_complement():
+    def parse_phrase(self):
+        if self.parse_sujet() and self.correspondre(verbes) and self.parse_complement():
             return True
         return False
 
 # Fonction principale pour valider une phrase
-def validate_sentence(sentence):
-    tokens = sentence.lower().split()
-    parser = Parser(tokens)
-    return parser.parse_sentence()
+def valider_phrase(phrase):
+    tokens = phrase.lower().split()
+    parseur = Parseur(tokens)
+    return parseur.parse_phrase()
