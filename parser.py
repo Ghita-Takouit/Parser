@@ -5,6 +5,18 @@ def charger_mots(nom_fichier):
     with open(nom_fichier, 'r') as fichier:
         return set(mot.strip() for mot in fichier.readlines())
 
+def charger_verbes():
+    with open('verbes.txt', 'r', encoding='utf-8') as file:
+        return [line.strip() for line in file]
+
+def charger_noms():
+    with open('noms.txt', 'r', encoding='utf-8') as file:
+        return [line.strip() for line in file]
+
+def charger_articles():
+    with open('articles.txt', 'r', encoding='utf-8') as file:
+        return [line.strip() for line in file]
+
 # Charger les composants grammaticaux
 articles = charger_mots('articles.txt')
 verbes = charger_mots('verbes.txt')
