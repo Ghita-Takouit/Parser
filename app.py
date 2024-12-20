@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify, render_template
 
 app = Flask(__name__)
 
-# Vocabulaire (all in lowercase)
 ARTICLES = {"le", "la", "les", "une", "un", "des", "ce", "ces"}
 NOMS = {"souris", "fromage", "chat", "chien", "oiseau", "poisson", "voiture", "maison", 
         "livre", "table", "chaise", "ordinateur", "fenêtre", "porte","portes" ,"jardin", "arbre", 
@@ -15,7 +14,6 @@ VERBES = {"mange", "mangent", "voit", "voient", "construit", "construisent", "at
           "traverse", "traversent", "habite", "habitent", "explore", "explorent"}
 
 def analyser_phrase(tokens):
-    # Convert all tokens to lowercase
     tokens = [token.lower() for token in tokens]
     if not tokens:
         return False, "Entrée vide"
@@ -38,7 +36,6 @@ def analyser_phrase(tokens):
     return True, "Phrase valide"
 
 def analyser_sujet(tokens):
-    """Analyser un sujet (Article + Nom)."""
     if not tokens or tokens[0] not in ARTICLES:
         return tokens, "Article attendu"
     tokens = tokens[1:]
@@ -47,13 +44,11 @@ def analyser_sujet(tokens):
     return tokens[1:], None
 
 def analyser_verbe(tokens):
-    """Analyser un verbe."""
     if not tokens or tokens[0] not in VERBES:
         return tokens, "Verbe attendu"
     return tokens[1:], None
 
 def analyser_complement(tokens):
-    """Analyser un complément (Article + Nom)."""
     if not tokens or tokens[0] not in ARTICLES:
         return tokens, "Article attendu"
     tokens = tokens[1:]
@@ -63,7 +58,6 @@ def analyser_complement(tokens):
 
 @app.route('/')
 def index():
-    """Servir la page HTML."""
     return render_template('index.html')
 
 @app.route('/analyser', methods=['POST'])
