@@ -1,48 +1,112 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <title>Validation de Phrase</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyseur de Phrase Française</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-900">
-  <div class="container mx-auto py-10 px-4">
-    <h1 class="text-4xl font-extrabold text-center mb-8 text-blue-700">Validation de Phrase en Français</h1>
-    <div class="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-lg">
-      <form id="sentence-form" class="space-y-4">
-        <div>
-          <label for="sentence" class="block text-lg font-medium text-gray-700">Entrez une Phrase :</label>
-          <input id="sentence" type="text" class="w-full p-3 border border-gray-300 rounded mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., Le chat mange une souris">
-        </div>
-        <button type="submit" class="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition duration-300">Valider</button>
-      </form>
-      <div id="result" class="mt-6 text-center text-lg font-semibold"></div>
-      <ul id="history" class="mt-6 space-y-2"></ul> 
-    </div>
-  </div>
-  <script>
-    document.getElementById('sentence-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const sentence = document.getElementById('sentence').value;
-      const response = await fetch('/validate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sentence }),
-      });
-      const result = await response.json();
-      const resultElement = document.getElementById('result');
-      resultElement.textContent = result.valid ? "Phrase Valide" : "Phrase Invalide";
-      resultElement.classList.remove("text-green-500", "text-red-500");
-      resultElement.classList.add(result.valid ? "text-green-500" : "text-red-500");
+<body class="font-sans bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen p-6">
+    <div class="flex justify-center">
+        <div class="w-full max-w-2xl">
+            <h1 class="text-4xl font-bold text-indigo-900 mb-8 text-center tracking-tight">
+                Analyseur de Phrase Française
+            </h1>
+            
+            <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+                <form id="parser-form" class="flex flex-col items-center gap-4">
+                    <div class="w-full">
+                        <input type="text" 
+                               id="phrase" 
+                               placeholder="Entrez une phrase en français..." 
+                               required 
+                               class="w-full p-4 border-2 border-indigo-200 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all duration-200">
+                    </div>
+                    <button type="submit" 
+                            class="px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transform hover:scale-105 transition-all duration-200 font-semibold shadow-md">
+                        Analyser la Phrase
+                    </button>
+                </form>
+            </div>
 
-      // Update history list
-      const history = document.getElementById('history');
-      const listItem = document.createElement('li');
-      listItem.textContent = sentence + " - " + (result.valid ? "Valide" : "Invalide");
-      listItem.classList.add(result.valid ? "text-green-500" : "text-red-500");
-      history.prepend(listItem); 
-    });
-  </script>
+            <div id="result" class="hidden fade-in mb-8"></div>
+
+            <div id="tested-sentences" class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-indigo-900 mb-4 text-center">
+                    Historique des Analyses
+                </h2>
+                <ul id="sentence-list" class="space-y-2"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('parser-form');
+        const resultDiv = document.getElementById('result');
+        const sentenceList = document.getElementById('sentence-list');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const phrase = document.getElementById('phrase').value;
+
+            // Send request to the Flask server
+            const response = await fetch('/analyser', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ phrase }),
+            });
+
+            const data = await response.json();
+            resultDiv.classList.remove('hidden');
+            resultDiv.classList.add('fade-in');
+            
+            const listItem = document.createElement('li');
+            if (data.valide) {
+                resultDiv.innerHTML = `
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-green-700">${data.retour}</p>
+                            </div>
+                        </div>
+                    </div>`;
+                listItem.className = 'p-3 bg-green-50 rounded-lg border border-green-200 text-green-800';
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-red-700">${data.retour}</p>
+                            </div>
+                        </div>
+                    </div>`;
+                listItem.className = 'p-3 bg-red-50 rounded-lg border border-red-200 text-red-800';
+            }
+            listItem.textContent = phrase;
+            sentenceList.insertBefore(listItem, sentenceList.firstChild);
+            form.reset();
+        });
+    </script>
 </body>
 </html>
